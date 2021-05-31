@@ -58,6 +58,18 @@
             /* font-family: Georgia, 'Times New Roman', Times, serif; */
         }
 
+        .chart-container5 {
+            padding-top: 8em;
+            padding-bottom: 7em;
+            max-width: 1050px;
+            max-height: 1050px;
+            margin: 100px auto;
+            /* margin-top: 20px auto; */
+            /* auto centers the div */
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            /* font-family: Georgia, 'Times New Roman', Times, serif; */
+        }
+
 
         svg {
             overflow: visible;
@@ -125,7 +137,10 @@
             height: 35px;
             width: 250px;
         }
-
+        .legend-annotations {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12px;
+        }
 
         .hover{
             fill: white
@@ -156,7 +171,12 @@
       <!-- <svg width="1050px" height="1050px" id='map'></svg>  -->
     </div>
 
-    <div class="chart-container4" id='map'>
+    <div class="chart-container4" id='map2'>
+      <div class="titles">Total Cases & Deaths</div>
+    </div>
+
+
+    <div class="chart-container5" id='text'>
       <div class="titles">Text here</div>
     </div>
 
@@ -420,7 +440,6 @@ function swatches({
             // .ticks(3)
             .tickValues([100000, 200000, 300000, 400000]) //can define your own ticks
             .tickSize(-width) //size of tick lines
-            // .tickFormat(d3.formatPrefix(".1", 1e6))
             .tickPadding(10)
 
 
@@ -708,6 +727,7 @@ function swatches({
       let height = 500;
 
       let margin = { top: 10, right: 0, bottom: 10, left: 0 };
+// third svg here
 
       let svg3 = d3.select("#map")
       .append("svg")
@@ -780,66 +800,196 @@ function swatches({
             .attr("transform", "translate(50, 0)")
             .append(() => legend({
                 color: d3.scaleThreshold([10, 30, 50, 70, 100], d3.schemeOrRd[6]),
-                // color: d3.scaleQuantize([0.15, 0.75], d3.schemeBlues[7]),
-                // color: d3.scaleOrdinal(["<10", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "≥80"], d3.schemeBlues[6]),
                 title: "Average Daily Cases per 100,000 people in the past week",
                 tickSize: 0
-})
-
-// CountyPopup2.on("mouseover", (event, d) => {
-
-//     d3.select(event.srcElement)
-//         .attr("stroke", "black")
-//         .style("stroke-width", 0.5)
-
-
-//     popup
-//         .style("border", "1px solid black")
-//         .style("width", "200px")
-//         .style("background", "white")
-//         .style("padding", "10px")
-//         .style("left", (event.x + 10) + "px")
-//         .style("top", (event.y - 15) + "px") //reposition
-//         .style("opacity", .8)
-//         // .html("No information available for this County")
-//         .html("Insufficient information for " +
-//               "<b>" + d.properties.countyname + "</b>")
-// })
-
-// CountyPopup2.on("mouseout", (event, d) => {
-
-//     d3.select(event.srcElement)
-//         .attr("stroke", "white")
-//         .style("stroke-width", .1)
-
-//     popup
-//         .style("opacity", 0)
-
-// })
-
-
-// // add state white border
-// // add scale
-// // add no info available by creating function - somehow NA is zero 
-
-// svg.append("g") //legend
-//     .attr("class", "legend")
-//     .attr("transform", "translate(630, -10)")
-//     .append(() => legend({
-//         color: d3.scaleThreshold([0.23, 0.29, 0.33, 0.37, 0.41, 0.47], d3.schemeBlues[7]),
-//         // color: d3.scaleQuantize([0.15, 0.75], d3.schemeBlues[7]),
-//         // color: d3.scaleOrdinal(["<10", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "≥80"], d3.schemeBlues[6]),
-//         title: "Vaccination Rate",
-//         tickSize: 0
-// })
-//     // .append(() => legend({
-//     //     color: d3.scaleOrdinal(d3.schemeBlues[7]),
-//     //     title: "My Legend",
-//     //     width: 325,
-//     //     tickFormat: d3.format(".0%")
-
+          })
     
 )}
+
+
+Promise.all([d3.json('topo.json')])
+      .then(ready2)
+      // .catch((err) => { console.log(err) });
+
+    function ready2(res) {
+
+      let raw = res[0]
+
+      let state = topojson.feature(raw, raw.objects.states);
+
+      // console.log({state})
+
+      let width = 1000;
+      let height = 500;
+
+      let margin = { top: 10, right: 0, bottom: 10, left: 0 };
+
+// fourth svg
+      
+      let svg4 = d3.select("#map2")
+      .append("svg")
+
+      let dateformat = d3.timeFormat("%b %d, %Y")
+      let comma1 = d3.format(",d")
+      let comma = d3.format(",.2r")
+
+      let myProjection = d3.geoIdentity()
+          .fitSize([width, height], state)
+          .reflectY(true)
+          .translate([-800, 600])
+
+
+      let path = d3.geoPath()
+          .projection(myProjection)
+
+
+      // let color = d3.scaleThreshold([10, 30, 50, 70, 100], d3.schemeOrRd[6])
+      // let color = d3.scaleThreshold([0.23, 0.29, 0.33, 0.37, 0.41, 0.47], d3.schemeBlues[7])
+
+      let statebounds = svg4.append("g")
+          .selectAll("path")
+          .attr("class", "raw")
+          .data(state.features.filter(d => d.geometry != null))
+          // .data(county.features.filter(d => d.properties.fully_vaccinated != null)) // pop up for only non null counties
+          .join("path")
+          .attr("d", path)
+          .attr("stroke", "white")
+          .style("stroke-width", "1px")
+          .attr("fill", "#dcdcdc")
+          // .attr("fill", d => color(d.properties.weekly_average))
+          // .attr("fill", d => color(d.properties['5/27']*100000/d.properties.population))
+
+        let popup4 = d3.select(".pop-up")
+        let formatter = d3.format(".00%") //format variable
+
+
+        let statepopup = svg4.append("g")
+            .selectAll(".circles")
+            .data(state.features.filter(d => d.geometry != null))
+            // .data(county.features.filter(d => d.geometry != null))
+            .join("circle")
+            .attr("class", d => { return "circles p-" + d.properties.ST_NM}) //unique
+            .attr("r", d => Math.sqrt(d.properties.cumulative / 8000))
+            .attr("cx", d => { return path.centroid(d)[0] }) //coordinates
+            .attr("cy", d => { return path.centroid(d)[1] })
+            .style("fill", "#ffcccc")
+            .style("stroke", "red")
+            .style("stroke-width", "1px")
+
+
+            let legendcircles = svg4.append("g")
+              .append('circle')
+              .attr("r", d => Math.sqrt(20000 / 8000))
+              .attr("cx", 48) //coordinates
+              .attr("cy", 50)
+              // .style("fill", "black")
+              .style("fill", "#ffcccc")
+              .style("stroke", "red")
+              .style("stroke-width", "1px")
+
+              svg4.append("g")
+              .append('circle')
+              .attr("r", d => Math.sqrt(200000 / 8000))
+              .attr("cx", 60) //coordinates
+              .attr("cy", 50)
+              // .style("fill", "black")
+              .style("fill", "#ffcccc")
+              .style("stroke", "red")
+              .style("stroke-width", "1px")
+
+              svg4.append("g")
+              .append('circle')
+              .attr("r", d => Math.sqrt(500000 / 8000))
+              .attr("cx", 80) //coordinates
+              .attr("cy", 50)
+              // .style("fill", "black")
+              .style("fill", "#ffcccc")
+              .style("stroke", "red")
+              .style("stroke-width", "1px")
+
+
+              svg4.append("g")
+              .append('circle')
+              .attr("r", d => Math.sqrt(1000000 / 8000))
+              .attr("cx", 111) //coordinates
+              .attr("cy", 50)
+              // .style("fill", "black")
+              .style("fill", "#ffcccc")
+              .style("stroke", "red")
+              .style("stroke-width", "1px")
+
+
+              svg4.append("g")
+              .append('circle')
+              .attr("r", d => Math.sqrt(5000000 / 8000))
+              .attr("cx", 155) //coordinates
+              .attr("cy", 50)
+              // .style("fill", "black")
+              .style("fill", "#ffcccc")
+              .style("stroke", "red")
+              .style("stroke-width", "1px")
+
+            svg4.append("text")
+            .attr("x", 36)
+            .attr("y", 55)
+            .attr("class", "legend-annotations")
+            .style("text-anchor", "end")
+            // .style("fill", "#888")
+            .style("font-size", "11px")
+            .text("20,000")
+
+
+            svg4.append("text")
+            .attr("x", 235)
+            .attr("y", 55)
+            .attr("class", "legend-annotations")
+            .style("text-anchor", "end")
+            // .style("fill", "#888")
+            .style("font-size", "11px")
+            .text("5,000,000")
+
+
+
+    statepopup.on("mouseover", (event, d) => {
+        // console.log({d})
+        d3.select(event.srcElement)
+            .style("stroke", "black")
+            // .style("stroke-width", "2px")
+
+      popup4
+            .style("border", "1px solid black")
+            .style("width", "200px")
+            .style("background", "white")
+            .style("padding", "10px")
+            .style("left", (event.x  + 50) + "px")
+            .style("top", (event.y +1500) + "px") //reposition
+            .style("opacity", .8)
+            .html(d.properties.ST_NM  + "<br>" +"<hr>"  + "<b>" + "Cases: " + comma1(d.properties.cumulative) + "</b>" + "<br>" + "Deaths: " + comma1(d.properties.deaths_total))
+
+    })
+
+          statepopup.on("mouseout", (event, d) => {
+
+              d3.select(event.srcElement)
+                  .style("stroke", "red")
+                  .style("stroke-width", "1px")
+
+
+              popup4
+                  .style("opacity", 0)
+
+          })
+
+          // svg3.append("g") //legend
+          //   .attr("class", "legend")
+          //   .attr("transform", "translate(50, 0)")
+          //   .append(() => legend({
+          //       color: d3.scaleThreshold([10, 30, 50, 70, 100], d3.schemeOrRd[6]),
+          //       title: "Average Daily Cases per 100,000 people in the past week",
+          //       tickSize: 0
+          // })
+    
+}
   
 
 </script>
