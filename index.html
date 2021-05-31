@@ -194,6 +194,8 @@
 <script src="https://d3js.org/d3-color.v2.min.js"></script>
 <script src="https://d3js.org/d3-interpolate.v2.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v2.min.js"></script>
+<script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+
 
 <!-- This is a script for chloropleth legends -->
 <script>
@@ -520,6 +522,40 @@ function swatches({
           .attr("y", d => y(d.value))
 
 
+          const annotations = [
+            {
+                note: {
+                    label: "7-day average",
+                    align: "right"
+                },
+                x: 440,
+                y: 325,
+                dx: -20,
+                dy: -10,
+                bgPadding: 0,
+                size: 10,
+                type: d3.annotationLabel
+            },
+            {
+                note: {
+                    label: "New cases",
+                    align: "right"
+                },
+                x:958,
+                y: 40,
+                dx: 0,
+                dy: -20,
+                bgPadding: 0,
+                size: 10,
+                type: d3.annotationLabel
+            }
+            
+        ]
+
+        svg.append("g")
+            .attr("class", "annotation-group")
+            .call(d3.annotation().annotations(annotations))
+
 
 
           bars.on("mouseover", (event, d) => {
@@ -624,6 +660,38 @@ function swatches({
               let groups = data.map(d => d.date)
 
 
+              const annotations2 = [
+              {
+                note: {
+                    label: "New deaths",
+                    align: "right"
+                },
+                x:984,
+                y: 30,
+                dx: -20,
+                dy: -20,
+                bgPadding: 0,
+                size: 10,
+                type: d3.annotationLabel
+            },
+            {
+                note: {
+                    label: "7-day average",
+                    align: "right"
+                },
+                x:290,
+                y: 345,
+                dx: -20,
+                dy: -20,
+                bgPadding: 0,
+                size: 10,
+                type: d3.annotationLabel
+            }
+        ]
+
+
+
+
               let bg = svg2.append("rect")
                   .attr("x", margin.left)
                   .attr("y", 0)
@@ -631,6 +699,12 @@ function swatches({
                   .attr("height", height)
                   .style("fill", "white")
                   
+            svg2.append("g")
+              .attr("class", "annotation-group")
+              .call(d3.annotation().annotations(annotations2))
+
+
+
 
               let xAxisTicks = svg2.append("g")
                   .attr("class", "x axis")
