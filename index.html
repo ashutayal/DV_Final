@@ -15,7 +15,7 @@
             padding-bottom: 7em;
             max-width: 1050px;
             max-height: 1050px;
-            margin: 100px auto;
+            margin: 80px auto;
             /* margin-top: 20px auto; */
             /* auto centers the div */
             font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
@@ -58,9 +58,9 @@
             /* font-family: Georgia, 'Times New Roman', Times, serif; */
         }
 
-        .chart-container5 {
-            padding-top: 8em;
-            padding-bottom: 7em;
+        .sources {
+            padding-top: 5em;
+            /* padding-bottom: 7em; */
             max-width: 1050px;
             max-height: 1050px;
             margin: 100px auto;
@@ -172,12 +172,12 @@
     </div>
 
     <div class="chart-container4" id='map2'>
-      <div class="titles">Total Cases & Deaths</div>
+      <div class="titles">Total Cases by State</div>
     </div>
 
 
-    <div class="chart-container5" id='text'>
-      <div class="titles">Text here</div>
+    <div class="sources" id='mytext'>
+      <!-- <div class="titles">Sources:</div> -->
     </div>
 
 
@@ -186,6 +186,8 @@
 
 
 <script src="https://d3js.org/d3.v6.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script> -->
+
 <!-- we're using d3 version 6 (the latest version) for all our work -->
 
 <script src="https://unpkg.com/topojson@3"></script>
@@ -990,208 +992,40 @@ Promise.all([d3.json('topo.json')])
           // })
     
 }
-  
+let svg5 = d3.select("#mytext")
+      .append("svg")
+
+
+          svg5.append("text")
+            .attr("x", 24)
+            .attr("y", 0)
+            .attr("class", "legend-annotations")
+            // .style("text-anchor", "middle")
+            .style("fill", "#999")
+            .style("font-size", "12px")
+            .text("About this data: ")
+
+
+
+    svg5
+      .append("svg")
+
+
+          svg5.append("text")
+            .attr("x", 900)
+            .attr("y", 20)
+            .attr("class", "legend-annotations")
+            .style("text-anchor", "end")
+            .style("fill", "#999")
+            .style("font-size", "12px")
+            .text("Sources: Center for Systems Science and Engineering (CSSE) at Johns Hopkins University, Census of India, and New York Times. Please consider donating to COVID relief in India.")
+
+
+//     
+            
+
 
 </script>
 
 
 
-
-
-
-<!-- <script>
-
-    Promise.all([d3.json('topo.json')])
-        .then(ready)
-        .catch((err) => { console.log(err) });
-
-    function ready(res) {
-
-        let raw = res[0]
-
-        let county = topojson.feature(raw, raw.objects.county);
-        let state = topojson.feature(raw, raw.objects.state);
-
-       // console.log({county})
-
-        let width = 1050;
-        let height = 700;
-        
-        let margin = { top: -10, right: 10, bottom: 10, left: 0 };
-
-        let svg = d3.select("body")
-            .select("svg")
-
-        let myProjection = d3.geoIdentity()
-            .fitSize([width, height], county)
-            .reflectY(true)
-
-        let path = d3.geoPath()
-            .projection(myProjection)
-
-        let innerlines = topojson.mesh(raw, raw.objects.state, function(a, b) {
-            return a != b;
-        })
-
-
-
-        // let color = d3.scaleOrdinal(d3.schemeBlues[6]);
-        let color = d3.scaleThreshold([0.23, 0.29, 0.33, 0.37, 0.41, 0.47], d3.schemeBlues[7])
- 
-
-     
-        // let states = svg
-        //     .append("path")
-        //     .attr("d", path)
-        //     .style("fill", "none")
-        //     .style("stroke", "black")
-        //     .style("stroke-width", 1)
-        //     .style("pointer-events", "none")
-
-        let CountyPopup = svg.append("g")
-            .selectAll("path")
-            .attr("class", "raw")
-            .data(county.features.filter(d => d.geometry != null))
-            .data(county.features.filter(d => d.properties.fully_vaccinated != null)) // pop up for only non null counties
-            .join("path")
-            .attr("d", path)
-            .attr("stroke", "white")
-            .style("stroke-width", .1)
-            .attr("fill", d => color(d.properties.fully_vaccinated))
-            // .attr("fill", function(d) {
-            //     if (d.properties.fully_vaccinated != 0) {
-            //         return color(d.properties.fully_vaccinated);
-            //     }
-            //     else if (d.properties.fully_vaccinated == 0) {
-            //         return "#e5e5e5";
-            //     }
-            // })
-
-        let CountyPopup2 = svg.append("g")
-            .selectAll("path")
-            .attr("class", "raw")
-            .data(county.features.filter(d => d.geometry != null))
-            .data(county.features.filter(d => d.properties.fully_vaccinated == null)) // pop up for null counties
-            .join("path")
-            .attr("d", path)
-            .attr("stroke", "white")
-            .style("stroke-width", .1)
-            .attr("fill", "#e5e5e5")
-
-
-
-        let popup = d3.select(".pop-up")
-        let formatter = d3.format(".00%") //format variable
-
-
-        svg
-            .append("path")
-            .data(state.features)
-            .attr("d", path(innerlines))
-            .style("fill", "none")
-            .style("stroke", "white")
-            .style("stroke-width", 1.5)
-            .style("pointer-events", "none")
-
-
-        svg.append("text")
-            .attr("x", 100)
-            .attr("y", 700)
-            .attr('font-family', "sans-serif")
-            .style("fill", "#888")
-            .style("font-size", "12px")
-            .text("Source: data.cdc.gov")
-
-        svg.append("text")
-            .attr("x", 100)
-            .attr("y", 720)
-            .attr('font-family', "sans-serif")
-            .style("fill", "#888")
-            .style("font-size", "12px")
-            .text("Note: Figures obtained on May 24, 2021")
-
-
-        CountyPopup.on("mouseover", (event, d) => {
-
-            d3.select(event.srcElement)
-                .attr("stroke", "black")
-                .style("stroke-width", 0.5)
-
-            popup
-                .style("border", "1px solid black")
-                .style("width", "200px")
-                .style("background", "white")
-                .style("padding", "10px")
-                .style("left", (event.x + 10) + "px")
-                .style("top", (event.y - 15) + "px") //reposition
-                .style("opacity", .8)
-                .html("In " +
-                      "<b>" + d.properties.countyname + ", " + formatter(d.properties.fully_vaccinated)+ "</b>" + " of all residents are fully vaccinated for COVID-19.")
-        })
-
-        CountyPopup.on("mouseout", (event, d) => {
-
-            d3.select(event.srcElement)
-                .attr("stroke", "white")
-                .style("stroke-width", .1)
-            popup
-                .style("opacity", 0)
-
-        })
-
-        CountyPopup2.on("mouseover", (event, d) => {
-
-            d3.select(event.srcElement)
-                .attr("stroke", "black")
-                .style("stroke-width", 0.5)
-
-
-            popup
-                .style("border", "1px solid black")
-                .style("width", "200px")
-                .style("background", "white")
-                .style("padding", "10px")
-                .style("left", (event.x + 10) + "px")
-                .style("top", (event.y - 15) + "px") //reposition
-                .style("opacity", .8)
-                // .html("No information available for this County")
-                .html("Insufficient information for " +
-                      "<b>" + d.properties.countyname + "</b>")
-        })
-
-        CountyPopup2.on("mouseout", (event, d) => {
-
-            d3.select(event.srcElement)
-                .attr("stroke", "white")
-                .style("stroke-width", .1)
-
-            popup
-                .style("opacity", 0)
-
-        })
-
-
-        svg.append("g") //legend
-            .attr("class", "legend")
-            .attr("transform", "translate(630, -10)")
-            .append(() => legend({
-                color: d3.scaleThreshold([0.23, 0.29, 0.33, 0.37, 0.41, 0.47], d3.schemeBlues[7]),
-                // color: d3.scaleQuantize([0.15, 0.75], d3.schemeBlues[7]),
-                // color: d3.scaleOrdinal(["<10", "10-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "≥80"], d3.schemeBlues[6]),
-                title: "Vaccination Rate",
-                tickSize: 0
-})
-            // .append(() => legend({
-            //     color: d3.scaleOrdinal(d3.schemeBlues[7]),
-            //     title: "My Legend",
-            //     width: 325,
-            //     tickFormat: d3.format(".0%")
-
-            
-            )}
-
-
-
-
-
-</script> -->
